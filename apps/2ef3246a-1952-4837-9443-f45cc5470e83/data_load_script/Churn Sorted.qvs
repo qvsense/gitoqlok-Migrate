@@ -1,0 +1,107 @@
+///$tab Churn Sorted
+$(_prefixe)_CHURN_SORTED:
+LOAD  
+*,
+//AutoNumberHash128(trim(text("ID BP Principal")),[Validité (mois)],[Validité (année)],[ID Installation],Société) as _key_Qlik_Churn_perdu,
+//AutoNumberHash128(trim(text("ID BP Principal")),[Validité (année)],[ID Installation],Société) as _key_Qlik_Churn_repris,
+if([ID Installation]=peek([ID Installation]) 
+	and [Validité (année)]=peek([Validité (année)]) 
+    	and [ID BP Principal]<>peek([ID BP Principal]),peek([ID BP Principal]),null()) 		as Ancien_groupe
+resident $(_prefixe)_CHURN 
+order by  [ID Installation] asc , [ID Contrat] asc ,[Validité (mois)] asc 
+;
+
+call QTDE.LogRows('$(_prefixe)','$(_prefixe)_CHURN_SORTED', 'Resident', '$(_prefixe)_CHURN_TMP');
+
+
+
+left join ($(_prefixe)_CHURN_SORTED)
+load  
+//AutoNumberHash128(trim(text("ID BP Principal")),[Validité (année)],[ID Installation],Société) as _key_Qlik_Churn_repris,
+	  [ID BP Principal] ,
+      [Validité (année)],
+      [ID Installation],
+      //Société,
+      Ancien_groupe As "Groupe précédent" ,
+      1             As [Site repris] 
+resident $(_prefixe)_CHURN_SORTED where not isnull(Ancien_groupe)
+//and match([Validité (mois)],'$(vControl_YearEnd_TY)','$(vControl_YearEnd_LY)')
+;
+
+call QTDE.LogRows('$(_prefixe)','$(_prefixe)_CHURN_SORTED', 'Left Join', '$(_prefixe)_CHURN_SORTED');
+
+
+Outer Join ($(_prefixe)_CHURN_SORTED)
+load  
+//AutoNumberHash128(trim(text("Groupe précédent")),[Validité (mois)],[Validité (année)],[ID Installation],Société) as _key_Qlik_Churn_perdu,
+	  "Groupe précédent"   as [ID BP Principal] ,
+      [Validité (mois)],
+      [Validité (année)],
+      [ID Installation],
+      //Société,
+	  1                    As [Site perdu] 
+resident $(_prefixe)_CHURN_SORTED where not isnull("Groupe précédent")
+//and match([Validité (mois)],'$(vControl_YearEnd_TY)','$(vControl_YearEnd_LY)')
+;
+
+call QTDE.LogRows('$(_prefixe)','$(_prefixe)_CHURN_SORTED', 'Left Join', '$(_prefixe)_CHURN_SORTED');
+
+
+
+// LEFT join ($(_prefixe)_CHURN_SORTED )
+
+// LOAD
+// DISTINCT
+// AutoNumberHash128([Validité (mois)],trim(text([ID BP Principal])),[ID Installation],[ID Contrat])	as _Key_Qlik_Aggregate,
+// // [ID BP Principal],
+// // [Validité (mois)],
+// // [ID Installation],
+// // [Résiliation (0/1)],
+// // [ID Contrat],
+// 1 as FL_SITE_NON_RESILIE
+// RESIDENT $(_prefixe)_CHURN_SORTED 
+// Where match([Résiliation (0/1)],0)
+// and
+// match([Validité (mois)],'$(vControl_YearEnd_TY)','$(vControl_YearEnd_LY)')
+// order by [Validité (mois)] asc,[ID BP Principal] asc, [ID Installation] asc//,[ID Contrat] asc
+// ;
+
+// call QTDE.LogRows('$(_prefixe)','$(_prefixe)_CHURN_SORTED', 'Left Join', '$(_prefixe)_CHURN_SORTED');
+
+
+// Right join (CHURN_SORTED)
+// LOAD
+// DISTINCT
+// // AutoNumberHash128([Validité (mois)],trim(text([ID BP Principal])),[ID Installation],[ID Contrat]) 	as _Key_Qlik_Aggregate,
+// [ID BP Principal],
+// [Validité (mois)],
+// [ID Installation],
+// [Résiliation (0/1)],
+// [ID Contrat],
+// 1 as FL_SITE_NON_RESILIE
+// RESIDENT CHURN_SORTED
+// Where match([Résiliation (0/1)],0)
+// and
+// match([Validité (mois)],'$(vControl_YearEnd_TY)','$(vControl_YearEnd_LY)')
+// order by [Validité (mois)] asc,[ID BP Principal] asc, [ID Installation] asc//,[ID Contrat] asc
+// ;
+
+
+// LEFT join ($(_prefixe)_CHURN_SORTED )
+// LOAD
+// DISTINCT
+// AutoNumberHash128([Validité (mois)],trim(text([ID BP Principal])),[ID Installation],[ID Contrat]) as _Key_Qlik_Aggregate,
+// // [ID BP Principal],
+// // [Validité (mois)],
+// // [ID Installation],
+// // [Résiliation (0/1)],
+// // [ID Contrat],
+// 1 as FL_SITE_ACTIF
+// RESIDENT $(_prefixe)_CHURN_SORTED 
+// Where match([Actif 01/01],1) 
+// and
+// match([Validité (mois)],'$(vControl_YearStart_TY)','$(vControl_YearStart_LY)')
+// order by [Validité (mois)] asc,[ID BP Principal] asc, [ID Installation] asc//,[ID Contrat] asc
+// ;
+
+// call QTDE.LogRows('$(_prefixe)','$(_prefixe)_CHURN_SORTED', 'Left Join', '$(_prefixe)_CHURN_SORTED');

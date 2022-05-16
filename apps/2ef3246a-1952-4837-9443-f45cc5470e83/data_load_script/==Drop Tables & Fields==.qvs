@@ -1,0 +1,9 @@
+///$tab ==Drop Tables & Fields==
+Drop tables $(_prefixe)_CHURN_TMP,$(_prefixe)_CHURN, $(_prefixe)_CHURN_SORTED,
+INLINE_TYPE_SEG_PERIM,INLINE_TYPE_SEG_CLIENT ,
+$(_prefixe)_Max_DATE_TMP,
+$(_prefixe)_CLIENT,$(_prefixe)_CLIENT_TMP;
+
+// Drop fields 
+// [ID BP] 
+// from $(_prefixe)_CHURN_SORTED;

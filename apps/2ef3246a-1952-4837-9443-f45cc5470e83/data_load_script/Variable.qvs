@@ -1,0 +1,80 @@
+///$tab Variable
+rem Churn Global;
+//***************************************************************************************************************/
+SET vCHURN_RESIL_TY = 
+'rangemax(
+count(distinct {< [Validité (mois)] ={"$(vControl_YearStart_TY)"} ,FL_SITE_ACTIF={1}>} [ID Installation])
+-count( distinct {<[Validité (mois)] ={"$(vControl_YearEnd_TY)"} ,FL_SITE_NON_RESILIE={1}>} [ID Installation])
++sum( {< [Validité (mois)] ={"$(vControl_YearEnd_TY)"}>} FL_SITE_REPRIS)
+-sum( {< [Validité (mois)] ={"$(vControl_YearEnd_TY)"}>} FL_SITE_PERDU )
+,0)';
+
+LET vCHURN_RESIL_TY =$(vCHURN_RESIL_TY);
+
+
+SET vCHURN_RESIL_LY = 
+'rangemax(
+count( distinct {< [Validité (mois)] ={"$(vControl_YearStart_LY)"} ,FL_SITE_ACTIF={1}>} [ID Installation])
+-count( distinct {<[Validité (mois)] ={"$(vControl_YearEnd_LY)"} ,FL_SITE_NON_RESILIE={1}>} [ID Installation])
++sum( {< [Validité (mois)] ={"$(vControl_YearEnd_LY)"}>} FL_SITE_REPRIS)
+-sum( {< [Validité (mois)] ={"$(vControl_YearEnd_LY)"}>} FL_SITE_PERDU )
+,0)';
+LET vCHURN_RESIL_LY =$(vCHURN_RESIL_LY);
+
+
+
+exit script;
+
+
+
+rem Churn Collectivité;
+//***************************************************************************************************************/
+
+
+SET vCHURN_RESIL_Col_TY = rangemax(
+count( distinct {< [Validité (mois)] ={'$(vControl_YearStart_TY)'} ,FL_SITE_ACTIF={1}, [Segment détail]={'Grands Comptes - Collectivités'}>} [ID Installation])
+-count( distinct {<[Validité (mois)] ={'$(vControl_YearEnd_TY)'} ,FL_SITE_NON_RESILIE={1}, [Segment détail]={'Grands Comptes - Collectivités'}>} [ID Installation])
++sum( {< [Validité (mois)] ={'$(vControl_YearEnd_TY)'}, [Segment détail]={'Grands Comptes - Collectivités'}>} FL_SITE_REPRIS)
+-sum( {< [Validité (mois)] ={'$(vControl_YearEnd_TY)'}, [Segment détail]={'Grands Comptes - Collectivités'}>} FL_SITE_PERDU )
+,0);
+LET vCHURN_RESIL_Col_TY =$(vCHURN_RESIL_Col_TY);
+
+
+SET vCHURN_RESIL_Col_LY = 
+rangemax(
+count( distinct {< [Validité (mois)] ={'$(vControl_YearStart_LY)'} ,FL_SITE_ACTIF={1}, [Segment détail]={'Grands Comptes - Collectivités'}>} [ID Installation])
+-count( distinct {<[Validité (mois)] ={'$(vControl_YearEnd_LY)'} ,FL_SITE_NON_RESILIE={1}, [Segment détail]={'Grands Comptes - Collectivités'}>} [ID Installation])
++sum( {< [Validité (mois)] ={'$(vControl_YearEnd_LY)'}, [Segment détail]={'Grands Comptes - Collectivités'}>} FL_SITE_REPRIS)
+-sum( {< [Validité (mois)] ={'$(vControl_YearEnd_LY)'}, [Segment détail]={'Grands Comptes - Collectivités'}>} FL_SITE_PERDU )
+,0);
+LET vCHURN_RESIL_Col_LY =$(vCHURN_RESIL_Col_TY);
+
+
+
+
+
+
+
+
+rem Churn Entreprise;
+//***************************************************************************************************************/
+
+
+SET vCHURN_RESIL_Ent_TY = 
+rangemax(
+count( distinct {< [Validité (mois)] ={'$(vControl_YearStart_TY)'} ,FL_SITE_ACTIF={1},[Segment détail]={'Grands Comptes - Entreprises'}>} [ID Installation])
+-count( distinct {<[Validité (mois)] ={'$(vControl_YearEnd_TY)'} ,FL_SITE_NON_RESILIE={1},[Segment détail]={'Grands Comptes - Entreprises'}>} [ID Installation])
++sum( {< [Validité (mois)] ={'$(vControl_YearEnd_TY)'},[Segment détail]={'Grands Comptes - Entreprises'}>} FL_SITE_REPRIS)
+-sum( {< [Validité (mois)] ={'$(vControl_YearEnd_TY)'},[Segment détail]={'Grands Comptes - Entreprises'}>} FL_SITE_PERDU )
+,0);
+LET vCHURN_RESIL_Ent_TY =$(vCHURN_RESIL_Ent_TY);
+
+
+SET vCHURN_RESIL_Ent_LY = 
+rangemax(
+count( distinct {< [Validité (mois)] ={'$(vControl_YearStart_LY)'} ,FL_SITE_ACTIF={1},[Segment détail]={'Grands Comptes - Entreprises'}>} [ID Installation])
+-count( distinct {<[Validité (mois)] ={'$(vControl_YearEnd_LY)'} ,FL_SITE_NON_RESILIE={1},[Segment détail]={'Grands Comptes - Entreprises'}>} [ID Installation])
++sum( {< [Validité (mois)] ={'$(vControl_YearEnd_LY)'}, [Segment détail]={'Grands Comptes - Entreprises'}>} FL_SITE_REPRIS)
+-sum( {< [Validité (mois)] ={'$(vControl_YearEnd_LY)'},[Segment détail]={'Grands Comptes - Entreprises'}>} FL_SITE_PERDU )
+,0);
+LET vCHURN_RESIL_Ent_LY =$(vCHURN_RESIL_Ent_LY);

@@ -1,0 +1,44 @@
+///$tab Date Settings
+$(_prefixe)_Max_DATE_TMP:
+LOAD
+[Validité (mois)]				
+FROM [$(_QVD_root)\NEW_F_CHURN.qvd] (qvd)
+;
+
+
+$(_prefixe)_Max_DATE:
+LOAD 
+max([Validité (mois)])			as [Validité (mois)]
+Resident $(_prefixe)_Max_DATE_TMP
+order by [Validité (mois)] asc;
+
+//call QTDE.LogRows('$(_prefixe)','$(_prefixe)_Max_DATE', 'Resident', '$(_prefixe)_Max_DATE_TMP');
+
+
+
+// LOAD
+// max(fieldvalue('Validité (mois)',recno())) 				as [Validité (mois)]
+// AutoGenerate FieldValueCount('Validité (mois)');
+
+//LET vToday = Date(floor(Peek('Max_DATE_COMPTABLE',0,Max_DATE)),'YYYY-MM-DD');
+
+
+
+Let vMaxMonth = Peek('Validité (mois)',-1,Max_DATE);
+
+Let MyMessage =  'vMaxMonth value : '& '$(vMaxMonth)';
+Trace $(MyMessage);
+
+
+
+SET vControl_YearStart_TY = if(vMaxMonth > date(today(),'YYYY-MM'), date(YearStart(addmonths(today(),-1)),'YYYY-MM'),date(YearStart(AddMonths(vMaxMonth,-1)),'YYYY-MM'));
+LET vControl_YearStart_TY =$(vControl_YearStart_TY);
+
+SET vControl_YearStart_LY = if(vMaxMonth > date(today(),'YYYY-MM'), date(YearStart(addmonths(today(),-13)),'YYYY-MM'),date(YearStart(AddMonths(vMaxMonth,-13)),'YYYY-MM'));
+LET vControl_YearStart_LY =$(vControl_YearStart_LY); 
+
+SET vControl_YearEnd_TY =if(vMaxMonth > date(today(),'YYYY-MM') , date(addmonths(today(),-1) , 'YYYY-MM'),date(AddMonths(vMaxMonth,-1) , 'YYYY-MM'));
+LET vControl_YearEnd_TY =$(vControl_YearEnd_TY); 
+
+SET vControl_YearEnd_LY = if(vMaxMonth > date(today(),'YYYY-MM'), date(addmonths(today(),-13) , 'YYYY-MM'), date(AddMonths(vMaxMonth,-13) , 'YYYY-MM'));
+LET vControl_YearEnd_LY =$(vControl_YearEnd_LY);

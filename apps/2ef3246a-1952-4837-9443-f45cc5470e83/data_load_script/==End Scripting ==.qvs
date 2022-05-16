@@ -1,0 +1,15 @@
+///$tab ==End Scripting ==
+call QTDE.Log('End Scripting part');
+
+If not WildMatch('$(_env)','DEV') then 
+
+Drop Tables
+$(_prefixe)_logs_rows,
+$(_prefixe)_logs
+;
+
+Exit script;
+
+else
+
+Exit script;

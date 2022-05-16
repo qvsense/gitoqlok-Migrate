@@ -1,0 +1,113 @@
+///$tab Churn Aggregated
+$(_prefixe)_CHURN_AGGR :
+// RES
+LOAD
+[Validité (mois)],
+"ID BP Principal",
+[Nom BP Principal],
+[Energie (périmètre)],
+//[ID Installation],
+[Segment (périmètre)],
+[Segment détail],
+[Service client],
+[Sous Service client],
+count(distinct [ID Installation]) as NB_SITE_NON_RESILIE
+RESIDENT $(_prefixe)_CHURN_SORTED
+Where match([Validité (mois)],'$(vControl_YearEnd_TY)','$(vControl_YearEnd_LY)')
+and match([Résiliation (0/1)],0)
+group by [Validité (mois)],
+"ID BP Principal",
+[Nom BP Principal],
+[Energie (périmètre)],
+//[ID Installation],
+[Segment (périmètre)],
+[Segment détail],
+[Service client],
+[Sous Service client];
+
+
+Concatenate ($(_prefixe)_CHURN_AGGR)
+// PER
+LOAD
+[Validité (mois)],
+"ID BP Principal",
+[Nom BP Principal],
+[Energie (périmètre)],
+//[ID Installation],
+[Segment (périmètre)],
+[Segment détail],
+[Service client],
+[Sous Service client],
+sum([Site perdu]) as SM_SITE_PERDU,
+sum([Site repris]) as SM_SITE_REPRIS
+RESIDENT $(_prefixe)_CHURN_SORTED
+Where match([Validité (mois)],'$(vControl_YearEnd_TY)','$(vControl_YearEnd_LY)')
+group by [Validité (mois)],
+"ID BP Principal",
+[Nom BP Principal],
+[Energie (périmètre)],
+//[ID Installation],
+[Segment (périmètre)],
+[Segment détail],
+[Service client],
+[Sous Service client];
+
+
+
+Concatenate ($(_prefixe)_CHURN_AGGR)
+// ACT
+LOAD
+[Validité (mois)],
+"ID BP Principal",
+[Nom BP Principal],
+[Energie (périmètre)],
+//[ID Installation],
+[Segment (périmètre)],
+[Segment détail],
+[Service client],
+[Sous Service client],
+count(distinct [ID Installation]) as NB_SITE_ACTIF
+RESIDENT $(_prefixe)_CHURN_SORTED
+Where match([Validité (mois)],'$(vControl_YearStart_TY)','$(vControl_YearStart_LY)')
+and match([Actif 01/01],1)
+group by [Validité (mois)],
+"ID BP Principal",
+[Nom BP Principal],
+[Energie (périmètre)],
+//[ID Installation],
+[Segment (périmètre)],
+[Segment détail],
+[Service client],
+[Sous Service client];
+
+
+
+Concatenate ($(_prefixe)_CHURN_AGGR)
+// PARC
+LOAD
+[Validité (mois)],
+"ID BP Principal",
+[Nom BP Principal],
+[Energie (périmètre)],
+//[ID Installation],
+[Segment (périmètre)],
+[Segment détail],
+[Service client],
+[Sous Service client],
+count([ID Installation]) as NB_PARC
+RESIDENT $(_prefixe)_CHURN_SORTED
+Where //match([Validité (mois)],'$(vControl_YearStart_TY)','$(vControl_YearStart_LY)')
+//and 
+match([Résiliation (0/1)],0)
+group by [Validité (mois)],
+"ID BP Principal",
+[Nom BP Principal],
+[Energie (périmètre)],
+//[ID Installation],
+[Segment (périmètre)],
+[Segment détail],
+[Service client],
+[Sous Service client];
+
+
+call QTDE.LogRows('$(_prefixe)','$(_prefixe)_CHURN_SORTED', 'RESIDENT', '$(_prefixe)_CHURN_AGGR');

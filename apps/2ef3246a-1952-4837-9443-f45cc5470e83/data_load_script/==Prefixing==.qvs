@@ -1,0 +1,9 @@
+///$tab ==Prefixing==
+LET _QVD_root = 'lib://QVD from QV (de_app_qlview)';
+
+
+LET _project='GC';
+LET _prefixe = '$(_project)_CHURN';
+LET _project_root = 'User Source (de_app_qlview)';
+LET _QVD_root = 'lib://QVD from QV (de_app_qlview)';
+LET _DWH_root = 'DWH (de_app_qlview)';

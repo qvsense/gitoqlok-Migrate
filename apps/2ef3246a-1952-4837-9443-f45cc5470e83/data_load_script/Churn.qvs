@@ -1,0 +1,86 @@
+///$tab Churn
+INLINE_TYPE_SEG_PERIM:
+LOAD trim(text("Segment (périmètre)"))  as "Segment (périmètre)"
+Inline [
+Segment (périmètre)
+Grand Compte
+Client DEEE
+];
+
+
+
+$(_prefixe)_CHURN_TMP:
+LOAD *
+FROM [$(_QVD_root)\NEW_F_CHURN.qvd]  (qvd)
+where //match([Validité (mois)],'$(vMaxMonth)') and 
+exists ([Segment (périmètre)]);
+
+
+$(_prefixe)_CHURN:
+LOAD
+//AutoNumberHash128(trim(text([ID BP Principal])),[Validité (mois)]) 	 													as _Key_Qlik_Partner_Date,
+AutoNumberHash128([Validité (mois)],trim(text([ID BP Principal])),[ID Installation],[ID Contrat]) 						as _Key_Qlik_Aggregate,
+// AutoNumberHash128(trim(text([ID BP Principal]))//,trim(text([Segment (périmètre)])),trim(text([Energie (périmètre)])))as _Key_Qlik_Partner,
+//AutoNumberHash128([ID BP Principal],[ID Installation]) 													AS _Key_Qlik_Install,
+year([Validité (mois)]) 																								as [Validité (année)],
+//[ID BP]&'|'&[Validité (mois)] 	 																						as Key_BP_Mois,
+Applymap('MAPPING_SEG_DETAIL',AutoNumberHash128(trim(text([ID BP Principal])),trim(text([Segment (périmètre)])),trim(text([Energie (périmètre)])))
+,'N/A') 			
+as [Segment détail],
+Applymap('MAPPING_SC_DETAIL',AutoNumberHash128(trim(text([ID BP Principal])),trim(text([Segment (périmètre)])),trim(text([Energie (périmètre)])))
+//,trim(text([Segment (périmètre)])),trim(text([Energie (périmètre)]))
+,'N/A') 			
+as [Service client],
+Applymap('MAPPING_SSC_DETAIL',AutoNumberHash128(trim(text([ID BP Principal])),trim(text([Segment (périmètre)])),trim(text([Energie (périmètre)])))
+//,trim(text([Segment (périmètre)])),trim(text([Energie (périmètre)]))
+,'N/A') 			
+as [Sous Service client],
+Applymap('MAPPING_CL_NAME_DETAIL',AutoNumberHash128(trim(text([ID BP Principal])),trim(text([Segment (périmètre)])),trim(text([Energie (périmètre)])))
+//,trim(text([Segment (périmètre)])),trim(text([Energie (périmètre)]))
+,'N/A') 			
+as [Nom BP Principal],
+*
+;
+LOAD
+//	 [ID Compte contrat], 
+     [ID BP], 
+//     [ID BP Groupe],
+     if(isnull([ID BP Principal]) or [ID BP Principal]=' ',[ID BP Groupe],[ID BP Principal]) as [ID BP Principal] ,
+//      [Actif début mois (0/1)], 
+     [Activation (0/1)],
+  //--------------- champs de la table complémnet pour dédoubloner la table --------
+//        [Initiateur résiliation],  
+//        [Effet date (date)],
+//        [Résiliation (date)], 
+//        [Actif (date)],
+//        [Ancienneté contract (Périmètre)],
+//        [Ancienneté Contrat +-15j] ,
+//        [Emménagement contrat (date)],
+       // [Solde début mois], 
+       //[Solde résiliation],
+    
+    
+     [ID Installation], 
+     [ID Contrat], 
+     //[Validité (mois-année)],
+     [Validité (mois)] ,
+//      [Validité (annee)],
+//     Société,
+     [Segment (périmètre)],
+     [Energie (périmètre)],
+//      [Service client], 
+//      [Sous Service client],
+//     [Emménagement contrat (date)],
+	 [Actif 01/01],
+	 [Résiliation (0/1)]
+//	 [Motif résiliation],
+//	 [Type Emménagement],
+// 	 [Démenagement (0/1)]
+RESIDENT $(_prefixe)_CHURN_TMP
+where //match([Validité (mois)],'$(vMaxMonth)') and 
+//exists ([Segment (périmètre)])
+//and
+year( [Validité (mois)]) >= year(Today())- 2
+;
+
+call QTDE.LogRows('$(_prefixe)','$(_prefixe)_CHURN', 'From QVD', 'NEW_F_CHURN');

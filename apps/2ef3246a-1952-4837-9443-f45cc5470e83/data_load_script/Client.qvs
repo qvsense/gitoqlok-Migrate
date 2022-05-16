@@ -1,0 +1,98 @@
+///$tab Client 
+INLINE_TYPE_SEG_CLIENT:
+LOAD trim(text(Segment))  as Segment
+Inline [
+Segment
+Grand Compte
+Client DEEE
+];
+
+
+$(_prefixe)_CLIENT_TMP:
+LOAD
+*
+FROM [$(_QVD_root)\NEW_D_CLIENT.qvd]  (qvd)
+where exists (Segment)
+;
+
+
+// $(_prefixe)_CLIENT:
+
+// Left keep
+// LOAD
+// Distinct 
+// AutoNumberHash128(trim(text([ID BP Principal])),trim(text(Segment)),trim(text([Energie client])))	as _Key_Qlik_Partner,
+// Segment, 
+// //[Segment (code)], 
+// [Segment détail],
+// [Service client],
+// // [Energie client], 
+// [Sous Service client]
+// FROM [$(_QVD_root)\NEW_D_CLIENT.qvd] (qvd)
+// where exists (Segment)
+// ;
+
+// call QTDE.LogRows('$(_prefixe)','$(_prefixe)_CLIENT', 'From QVD', 'NEW_D_CLIENT');
+
+
+
+$(_prefixe)_CLIENT:
+LOAD *,
+AutoNumberHash128(trim(text([ID BP Principal])),trim(text(Segment)),trim(text([Energie client])))	as _Key_Qlik_Segment;
+LOAD
+Distinct 
+if(isnull([ID BP Principal]) or [ID BP Principal]=' ',[ID BP Groupe],[ID BP Principal])
+//,trim(text(Segment)),trim(text([Energie client]))
+ 	as [ID BP Principal],
+[ID BP],
+Segment,
+[Energie client],
+//[Segment (code)], 
+[Segment détail],
+[Service client],
+[Sous Service client],
+[Nom/RS1 client]         AS "Nom BP Principal"
+RESIDENT $(_prefixe)_CLIENT_TMP
+;
+
+call QTDE.LogRows('$(_prefixe)','$(_prefixe)_CLIENT', 'From QVD', 'NEW_D_CLIENT');
+
+
+MAPPING_SEG_DETAIL:
+MAPPING LOAD 
+distinct
+_Key_Qlik_Segment,
+[Segment détail]
+RESIDENT $(_prefixe)_CLIENT;
+
+//call QTDE.LogRows('$(_prefixe)','MAPPING_SEG_DETAIL', 'RESIDENT', '$(_prefixe)_CLIENT');
+
+
+MAPPING_SC_DETAIL:
+MAPPING LOAD 
+distinct
+_Key_Qlik_Segment,
+[Service client]
+RESIDENT $(_prefixe)_CLIENT;
+
+//call QTDE.LogRows('$(_prefixe)','MAPPING_SC_DETAIL', 'RESIDENT', '$(_prefixe)_CLIENT');
+
+
+MAPPING_SSC_DETAIL:
+MAPPING LOAD 
+distinct
+_Key_Qlik_Segment,
+[Sous Service client]
+RESIDENT $(_prefixe)_CLIENT;
+
+//call QTDE.LogRows('$(_prefixe)','MAPPING_SSC_DETAIL', 'RESIDENT', '$(_prefixe)_CLIENT');
+
+
+MAPPING_CL_NAME_DETAIL:
+MAPPING LOAD 
+distinct
+_Key_Qlik_Segment,
+"Nom BP Principal"
+RESIDENT $(_prefixe)_CLIENT;
+
+//call QTDE.LogRows('$(_prefixe)','MAPPING_SSC_DETAIL', 'RESIDENT', '$(_prefixe)_CLIENT');

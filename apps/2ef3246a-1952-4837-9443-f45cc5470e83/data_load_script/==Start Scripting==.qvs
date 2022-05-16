@@ -1,0 +1,2 @@
+///$tab ==Start Scripting==
+call QTDE.Log('Start Scripting part');

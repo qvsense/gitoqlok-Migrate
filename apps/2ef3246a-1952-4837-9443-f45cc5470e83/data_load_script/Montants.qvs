@@ -1,0 +1,13 @@
+///$tab Montants
+$(_prefixe)_Montants:
+
+LOAD
+Key_BP_Mois,	 													
+"Montant résilié"
+//     "Montant Résiliation (+ 3 mois)",
+//     "Montant Résiliation (+ 6 mois)"
+FROM [$(_QVD_root)\MONTANTS_ECHUS_3M_6M.qvd](qvd) 
+where exists(Key_BP_Mois)
+;
+
+call QTDE.LogRows('$(_prefixe)','$(_prefixe)_Montants', 'From QVD', 'MONTANTS_ECHUS_3M_6M');
